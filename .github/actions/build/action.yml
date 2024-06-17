@@ -1,0 +1,25 @@
+name: Build
+description: Build
+
+inputs:
+  token:
+    description: GitHub token
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: npm
+    - run: npm ci
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.token }}
+      shell: bash
+    - run: npm run generate
+      shell: bash
+    - run: npm run build
+      shell: bash
+    - run: npm prune --production
+      shell: bash
