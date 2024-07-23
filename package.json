@@ -21,7 +21,7 @@
     "@bufbuild/protoc-gen-es": "^1.10.0",
     "rimraf": "^5.0.7",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.4"
   },
   "peerDependencies": {
     "@bufbuild/protobuf": "^1.10.0"
