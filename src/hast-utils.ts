@@ -16,7 +16,7 @@ export const getQuotesType = (str: string, rootString: string) => {
   if(startIndex === -1) return QuotesTypes.double;
 
   const bracket = rootString[startIndex - 1];
-  if (!bracket || !bracket.trim()) {
+  if (!bracket || !bracket.trim() || !str) {
     return "";
   } else {
     return bracket === `'` ? QuotesTypes.single : QuotesTypes.double;
@@ -208,7 +208,7 @@ const hastToObject = (
   return  hastToObjectRecursive(rootAst);
 };
 
-export const hastUtils: {
+export const hastTableUtils: {
   objectToHast: (
     rootString: string,
     obj: {},
