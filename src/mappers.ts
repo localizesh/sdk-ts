@@ -1,7 +1,8 @@
-import { Document as ProtoDocument } from "./protos/localize/document_pb.js";
-import { Segment as ProtoSegment, Attributes as ProtoAttributes } from "./protos/localize/segment_pb.js";
+import {create} from "@bufbuild/protobuf";
+import {Document as ProtoDocument, DocumentSchema as ProtoDocumentSchema} from "./protos/localize/document_pb.js";
+import {Attributes, Segment as ProtoSegment, SegmentSchema} from "./protos/localize/segment_pb.js";
 
-import { Document, Segment, Tags } from "./types.js";
+import {Document, Segment, Tags} from "./types.js";
 
 export function fromProtoDocument(protoDocument: ProtoDocument): Document {
   return {
@@ -11,23 +12,23 @@ export function fromProtoDocument(protoDocument: ProtoDocument): Document {
 }
 
 export function toProtoDocument(document: Document): ProtoDocument {
-  return new ProtoDocument({
+  return create(ProtoDocumentSchema, {
     layout: JSON.stringify(document.layout),
     segments: toProtoSegments(document.segments)
   });
 }
 
 export function fromProtoSegment(protoSegment: ProtoSegment): Segment {
-  const segment: Segment = { id: protoSegment.id, text: protoSegment.text };
+  const segment: Segment = {id: protoSegment.id, text: protoSegment.text};
 
   if (protoSegment.tags) {
     const tags: Tags = {};
     for (const tagKey of Object.keys(protoSegment.tags)) {
-      const attrs: ProtoAttributes = protoSegment.tags[tagKey];
+      const attrs: Attributes = protoSegment.tags[tagKey];
       tags[tagKey] = attrs.values;
     }
 
-    if(Object.keys(tags).length) {
+    if (Object.keys(tags).length) {
       segment.tags = tags;
     }
   }
@@ -40,13 +41,13 @@ export function fromProtoSegments(protoSegments: ProtoSegment[]): Segment[] {
 }
 
 export function toProtoSegment(segment: Segment): ProtoSegment {
-  const protoSegment: any = { id: segment.id, text: segment.text };
+  const protoSegment: any = {id: segment.id, text: segment.text};
   const protoTags: any = {};
 
   if (segment.tags) {
     for (const tagKey of Object.keys(segment.tags)) {
       const attrs = segment.tags[tagKey];
-      protoTags[tagKey] = { values: attrs };
+      protoTags[tagKey] = {values: attrs};
     }
 
     if (Object.keys(protoTags).length) {
@@ -54,7 +55,7 @@ export function toProtoSegment(segment: Segment): ProtoSegment {
     }
   }
 
-  return new ProtoSegment(protoSegment);
+  return create(SegmentSchema, protoSegment);
 }
 
 export function toProtoSegments(segments: Segment[]): ProtoSegment[] {
