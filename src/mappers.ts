@@ -7,6 +7,7 @@ import {Document, Segment, Tags} from "./types.js";
 export function fromProtoDocument(protoDocument: ProtoDocument): Document {
   return {
     layout: JSON.parse(protoDocument.layout),
+    metadata: protoDocument.metadata ?? undefined,
     segments: fromProtoSegments(protoDocument.segments)
   }
 }
@@ -14,6 +15,7 @@ export function fromProtoDocument(protoDocument: ProtoDocument): Document {
 export function toProtoDocument(document: Document): ProtoDocument {
   return create(ProtoDocumentSchema, {
     layout: JSON.stringify(document.layout),
+    metadata: document.metadata ?? undefined,
     segments: toProtoSegments(document.segments)
   });
 }
