@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "generate": "buf generate buf.build/localize/localize"
+    "generate": "buf generate buf.build/localizesh/localize"
   },
   "dependencies": {
     "@types/hast": "^3.0.4",
