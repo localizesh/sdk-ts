@@ -1,7 +1,10 @@
 version: v2
+clean: true
 plugins:
   - local: protoc-gen-es
     out: src/protos
     opt:
       - target=js+dts
       - import_extension=js
+inputs:
+  - module: buf.build/localizesh/localize:main
