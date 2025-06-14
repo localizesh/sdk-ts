@@ -1,5 +1,5 @@
 {
-  "name": "@localizesh/sdk-ts",
+  "name": "@localizesh/sdk",
   "repository": "localizesh/sdk-ts",
   "type": "module",
   "main": "dist/index.js",
