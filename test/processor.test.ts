@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { Processor, root, segment, text } from "../src/index.js";
+import { Processor, root } from "../src/index.js";
 import { Document } from "../src/types.js";
 import type { ParseRequest, StringifyRequest } from "../src/schema.js";
 
