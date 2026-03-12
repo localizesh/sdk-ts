@@ -1,14 +1,20 @@
 import Ajv from "ajv";
-import { Document, Context } from "./types.js";
+import { md5 } from "js-md5";
+import { Document, Tag } from "./types.js";
 import type {
   ParseRequest,
   ParseResponse,
   StringifyRequest,
-  StringifyResponse,
+  StringifyResponse
 } from "./schema.js";
 import schema from "./schema.json" with { type: "json" };
 
-export abstract class Processor {
+type Options = Record<string, unknown>;
+
+export abstract class Processor<
+  ParseOptions extends Options = Options,
+  StringifyOptions extends Options = Options,
+> {
   private static ajv = new Ajv();
   private static validateParseRequest = Processor.ajv.compile({
     ...schema.definitions.ParseRequest,
@@ -19,8 +25,16 @@ export abstract class Processor {
     definitions: schema.definitions,
   });
 
-  abstract parse(res: string, ctx?: Context): Document;
-  abstract stringify(doc: Document, ctx?: Context): string;
+  abstract parse(res: string, options?: ParseOptions): Document;
+  abstract stringify(doc: Document, options?: StringifyOptions): string;
+
+  protected id(
+    text: string,
+    tags?: { [key: string]: Tag },
+    metadata?: { [key: string]: unknown },
+  ): string {
+    return md5(JSON.stringify({ text, tags, metadata }));
+  }
 
   /**
    * Processes a JSON string input (ParseRequest or StringifyRequest)
@@ -72,7 +86,7 @@ export abstract class Processor {
   }
 
   private handleParse(request: ParseRequest): string {
-    const document = this.parse(request.resource, request.context);
+    const document = this.parse(request.resource, request.options as ParseOptions);
     const response: ParseResponse = {
       document,
     };
@@ -80,7 +94,7 @@ export abstract class Processor {
   }
 
   private handleStringify(request: StringifyRequest): string {
-    const resource = this.stringify(request.document as any, request.context);
+    const resource = this.stringify(request.document as any, request.options as StringifyOptions);
     const response: StringifyResponse = {
       resource,
     };

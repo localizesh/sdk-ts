@@ -1,18 +1,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Processor, root, segment, text } from "../src/index.js";
-import { Document, Context } from "../src/types.js";
+import { Document } from "../src/types.js";
 import type { ParseRequest, StringifyRequest } from "../src/schema.js";
 
 class TestProcessor extends Processor {
-  parse(res: string, ctx?: Context): Document {
+  parse(res: string): Document {
     return {
       segments: [{ id: "1", text: res }],
       layout: root(),
-      metadata: ctx,
     };
   }
-  stringify(doc: Document, ctx?: Context): string {
+  stringify(doc: Document): string {
     return doc.segments[0].text;
+  }
+  public testId(...args: Parameters<TestProcessor["id"]>) {
+    return this.id(...args);
   }
 }
 
@@ -50,7 +52,7 @@ describe("Processor", () => {
     it("should handle ParseRequest", () => {
       const request: ParseRequest = {
         resource: "Hello World",
-        context: { foo: "bar" },
+        options: { foo: "bar" },
       };
       const inputJson = JSON.stringify(request);
 
@@ -74,6 +76,26 @@ describe("Processor", () => {
       const response = JSON.parse(output);
 
       expect(response.resource).toBe("Hello World");
+    });
+  });
+
+  describe("id()", () => {
+    it("should generate deterministic IDs for same input", () => {
+      const id1 = processor.testId("Hello");
+      const id2 = processor.testId("Hello");
+      expect(id1).toBe(id2);
+    });
+
+    it("should generate different IDs for different tags", () => {
+      const id1 = processor.testId("Hello", { b1: { class: "bold" } });
+      const id2 = processor.testId("Hello", { i1: { class: "italic" } });
+      expect(id1).not.toBe(id2);
+    });
+
+    it("should generate different IDs for different metadata", () => {
+      const id1 = processor.testId("Hello", undefined, { section: "header" });
+      const id2 = processor.testId("Hello", undefined, { section: "footer" });
+      expect(id1).not.toBe(id2);
     });
   });
 
