@@ -6,7 +6,7 @@ A TypeScript/JavaScript SDK for building [Localize.sh](https://localize.sh) proc
 
 - **Abstract Processor**: A base class for creating custom processors that work seamlessly with the Localize.sh CLI (Node.js) and in browser environments.
 - **JSON Validation**: Runtime validation of requests using JSON Schema and AJV.
-- **ID Generation**: Utilities for generating deterministic MD5-based IDs for segments.
+- **ID Generation**: Built-in `id()` method for generating deterministic MD5-based segment IDs.
 - **Type Definitions**: Comprehensive TypeScript definitions for Documents, Segments, and Layouts (HAST compatible).
 - **Browser Compatible**: Works in both Node.js and browser environments.
 
@@ -23,23 +23,24 @@ npm install @localizesh/sdk
 Extend the `Processor` abstract class to implement your custom localization logic. This works for both CLI tools and browser-based processors.
 
 ```typescript
-import { Processor, Document, Context, root, segment } from "@localizesh/sdk";
+import { Processor, Document, root, segment } from "@localizesh/sdk";
 
-export class MyCustomProcessor extends Processor {
+interface MyParseOptions {
+  preserveWhitespace?: boolean;
+}
+
+export class MyCustomProcessor extends Processor<MyParseOptions> {
   // Parse a source file (e.g., Markdown, JSON) into a Localize Document
-  parse(res: string, ctx?: Context): Document {
+  parse(res: string, options?: MyParseOptions): Document {
+    const id = this.id("Hello World");
     return {
-      segments: [
-        { id: "dfc45caaec2819e2446e5bb669642cc9", text: "Hello World" }
-      ],
-      layout: root([
-        segment("dfc45caaec2819e2446e5bb669642cc9")
-      ])
+      segments: [{ id, text: "Hello World" }],
+      layout: root([segment(id)])
     };
   }
 
   // Convert a Localize Document back into the source format
-  stringify(doc: Document, ctx?: Context): string {
+  stringify(doc: Document): string {
     return doc.segments.map(s => s.text).join("\n");
   }
 }
@@ -51,18 +52,11 @@ processor.run();
 
 ### ID Generation
 
-Generate stable IDs for your segments based on text and context.
+The `Processor` base class provides a built-in `id()` method for generating deterministic segment IDs based on text, tags, and metadata.
 
 ```typescript
-import { IdGenerator } from "@localizesh/sdk";
-
-// Default: accounts for duplicates (index 1, 2, 3...)
-const generator = new IdGenerator();
-const id1 = generator.generateId("Hello {b1}World{/b1}", { b1: { class: "bold" } });
-
-// Ignore Index: returns same ID for duplicates
-const generatorNoIndex = new IdGenerator({ ignoreIndex: true });
-const id2 = generatorNoIndex.generateId("Hello World");
+const id = this.id("Hello {b1}World{/b1}", { b1: { class: "bold" } });
+const idWithMeta = this.id("Hello World", undefined, { section: "header" });
 ```
 
 ## Development
