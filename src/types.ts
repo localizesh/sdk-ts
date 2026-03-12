@@ -15,8 +15,6 @@ export interface LayoutSegment extends Node {
 
 export interface LayoutText extends Text {}
 
-export type Context = any;
-
 // Extended Document type with typed layout
 export interface Document {
   segments: Segment[];
